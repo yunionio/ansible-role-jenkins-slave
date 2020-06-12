@@ -1,0 +1,10 @@
+[Unit]
+Description=Jenkins Slave
+
+[Service]
+Type=simple
+User=jenkins
+Restart=always
+ExecStart={{ java_path }} -jar {{ jenkins_home }}/swarm-client.jar -fsroot {{ jenkins_home }}/jenkins-slave -master http://{{ jenkins_master_hostname }}:{{ jenkins_master_port }}/ -name {{ jenkins_slave_name }} -username {{ jenkins_master_username }} -password {{ jenkins_master_password }}
+KillMode=process
+

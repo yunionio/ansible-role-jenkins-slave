@@ -1,0 +1,8 @@
+---
+
+jenkins_home: /var/jenkins
+jenkins_slave_name: slave
+jenkins_master_hostname: localhost
+jenkins_master_port: 8080
+jenkins_master_username: admin
+jenkins_master_password: admin

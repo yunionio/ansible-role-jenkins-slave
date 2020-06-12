@@ -1,0 +1,43 @@
+- name: Get absolute Java path
+  command: which java
+  register: wj
+
+- name: Update Var 'java_path'
+  set_fact:
+    java_path: "{{ wj.stdout }}"
+
+- name: Create User 'jenkins'
+  user:
+    name: jenkins
+    comment: jenkins slave user
+
+- name: Create Jenkins slave directory
+  file:
+    path: "{{ jenkins_home }}/jenkins-slave"
+    state: directory
+    owner: jenkins
+
+- name: Download Jenkins Swarm Client
+  get_url:
+    url: "https://repo.jenkins-ci.org/releases/org/jenkins-ci/plugins/swarm-client/3.9/swarm-client-3.9.jar"
+    dest: "{{ jenkins_home }}/swarm-client.jar"
+    owner: jenkins
+  register: swarmjar_get
+  until: "'OK' in swarmjar_get.msg or '304' in swarmjar_get.msg or 'file already exists' in swarmjar_get.msg"
+  retries: 5
+  delay: 10
+
+- name: Install swarm client
+  template:
+    src: "templates/jenkins-swarm-client.tmpl"
+    dest: "/lib/systemd/system/jenkins-swarm-client.service"
+    mode: 644
+
+- name: Reload Systemctl
+  command: systemctl daemon-reload
+
+- name: Start Jenkins swarm client
+  service:
+    name: jenkins-swarm-client
+    state: started
+    enabled: yes
